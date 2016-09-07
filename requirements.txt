@@ -1,0 +1,4 @@
+Pillow==3.3.1
+pytesseract==0.1.6
+requests==2.11.1
+wheel==0.24.0
