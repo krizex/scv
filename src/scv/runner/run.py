@@ -3,7 +3,10 @@
 import os
 import time
 
+from pymongo.errors import DuplicateKeyError
+
 from scv import config
+from scv.db.db import DBManager
 from scv.exceptions.spider import ImageUnableGetException
 from scv.log.logger import log
 from scv.recognize.ocr import DataImageOCRer
@@ -32,11 +35,20 @@ class Runner(object):
             self.suspend()
 
     def execute(self):
+        log.info('start to get image')
         img_path, data_time = self._download_image()
+        log.info('start to recognize image')
         ocr = DataImageOCRer(img_path)
         subscribe_num = ocr.get_subscribe_num()
         deal_num = ocr.get_deal_num()
-        # TODO: store the data
+        try:
+            DBManager.insert_record({
+                'date': data_time.strftime("%Y%m%d"),
+                'subscribe': subscribe_num,
+                'deal_num': deal_num
+            })
+        except DuplicateKeyError:
+            log.warn('duplicate record')
 
     def _download_image(self):
         retrys = 5

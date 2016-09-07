@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 
+import datetime
 import requests
 import time
 
@@ -38,7 +39,7 @@ class ImageCollector(object):
             for chunk in r.iter_content(1024):
                 f.write(chunk)
 
-        return f_path, time.time() - 24 * 3600
+        return f_path, datetime.date.today() - datetime.timedelta(days=1)
 
     def __get_store_img_path(self):
         img_name = '%s.jpg' % time.strftime("%Y%m%d")
