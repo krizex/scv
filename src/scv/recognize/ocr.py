@@ -50,14 +50,14 @@ class DataImageOCRer(object):
         pixdata = image.load()
 
         vertical_boundaries = []
-
+        threshold = 1
         left = -1
         for x in range(image.size[0]):
             if left == -1:
-                if any([pixdata[x, y] == 0 for y in range(image.size[1])]):
+                if sum([pixdata[x, y] == 0 for y in range(image.size[1])]) >= threshold:
                     left = x
             else:
-                if all([pixdata[x, y] == 255 for y in range(image.size[1])]):
+                if sum([pixdata[x, y] == 0 for y in range(image.size[1])]) < threshold:
                     right = x - 1
                     vertical_boundaries.append((left, right))
                     left = -1
@@ -65,16 +65,20 @@ class DataImageOCRer(object):
         number_regions = []
         # all vertical boundaries have found
         for left, right in vertical_boundaries:
+            # find top and bottom boundary
             top = -1
             for y in range(image.size[1]):
-                if top == -1:
-                    if any([pixdata[x, y] == 0 for x in range(left, right + 1)]):
-                        top = y
-                else:
-                    if all([pixdata[x, y] == 255 for x in range(left, right + 1)]):
-                        bottom = y - 1
-                        number_regions.append(((left, top), (right, bottom)))
-                        break
+                if any([pixdata[x, y] == 0 for x in range(left, right + 1)]):
+                    top = y
+                    break
+
+            bottom = -1
+            for y in range(image.size[1] - 1, -1, -1):
+                if any([pixdata[x, y] == 0 for x in range(left, right + 1)]):
+                    bottom = y
+                    break
+
+            number_regions.append(((left, top), (right, bottom)))
 
         return number_regions
 
