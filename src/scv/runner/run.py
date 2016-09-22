@@ -27,12 +27,13 @@ class Runner(object):
 
     def run(self):
         while True:
+            start_time = time.time()
             try:
                 self.execute()
             except ImageUnableGetException:
                 log.error('Get image failed.')
 
-            self.suspend()
+            self.suspend(time.time() - start_time)
 
     def execute(self):
         log.info('start to get image')
@@ -41,6 +42,7 @@ class Runner(object):
         ocr = DataImageOCRer(img_path)
         subscribe_num = ocr.get_subscribe_num()
         deal_num = ocr.get_deal_num()
+        log.info("date=%s, subscribe=%s, deal=%s" % (data_time.strftime("%Y%m%d"), subscribe_num, deal_num))
         try:
             DBManager.insert_record({
                 'date': data_time.strftime("%Y%m%d"),
@@ -61,10 +63,10 @@ class Runner(object):
         log.error('unable to download image with retry %d times' % retrys)
         raise ImageUnableGetException('Get image failed with retry %d times' % retrys)
 
-    def suspend(self):
+    def suspend(self, elaps_time=0):
         interval = config.scanner['interval']
         log.debug('suspend %d seconds...' % interval)
-        time.sleep(interval)
+        time.sleep(interval - elaps_time)
 
 
 if __name__ == '__main__':
