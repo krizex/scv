@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys
+import os
+
+import numpy as np
 from PIL import Image
-from pytesseract import pytesseract
+
+from scv.log.logger import log
+from scv.recognize.model import NumberModle
 
 __author__ = 'David Qian'
 
@@ -20,6 +24,15 @@ class DataImageOCRer(object):
     def __init__(self, img_path):
         self._img_path = img_path
         self._image = Image.open(self._img_path)
+        self._training_set = []
+        self.__load_training_set()
+
+    def __load_training_set(self):
+        dirname = os.path.dirname(__file__)
+
+        for idx in range(10):
+            mx = np.load(os.path.join(dirname, 'training_set', '%d.npy' % idx))
+            self._training_set.append(NumberModle(mx, str(idx)))
 
     @property
     def imagefile(self):
@@ -38,54 +51,44 @@ class DataImageOCRer(object):
 
     def recognize_region(self, region_box):
         region = self.clip_image(region_box)
-        number_regions = self.split_numbers(region)
-        print number_regions
         self.__print_region(region)
-        self.__print_regions(region, number_regions)
+        result = self.__recognize_region(region)
+        log.info('Recognize result: %d' % result)
+        return result
 
-        # return pytesseract.image_to_string(region, config='outputbase digits')
-
-    def split_numbers(self, crop_region):
+    def __recognize_region(self, crop_region):
         image = crop_region.convert('1')
         pixdata = image.load()
 
-        vertical_boundaries = []
-        threshold = 1
-        left = -1
-        for x in range(image.size[0]):
-            if left == -1:
-                if sum([pixdata[x, y] == 0 for y in range(image.size[1])]) >= threshold:
-                    left = x
+        mx = None
+        nums = []
+
+        for col in range(image.size[0]):
+            data = [1 if pixdata[col, row] == 0 else 0 for row in range(image.size[1])]
+            if any(data):
+                if mx is not None:
+                    mx = np.hstack((mx, np.matrix(data).T))
+                else:
+                    mx = np.matrix(data).T
+
+                num = self.__match_num(mx)
+                if num is not None:
+                    nums.append(num)
+                    mx = None
             else:
-                if sum([pixdata[x, y] == 0 for y in range(image.size[1])]) < threshold:
-                    right = x - 1
-                    vertical_boundaries.append((left, right))
-                    left = -1
+                if mx is not None:
+                    raise RuntimeError('recognize failed')
 
-        number_regions = []
-        # all vertical boundaries have found
-        for left, right in vertical_boundaries:
-            # find top and bottom boundary
-            top = -1
-            for y in range(image.size[1]):
-                if any([pixdata[x, y] == 0 for x in range(left, right + 1)]):
-                    top = y
-                    break
+                mx = None
 
-            bottom = -1
-            for y in range(image.size[1] - 1, -1, -1):
-                if any([pixdata[x, y] == 0 for x in range(left, right + 1)]):
-                    bottom = y
-                    break
+        return int(''.join(nums))
 
-            number_regions.append(((left, top), (right, bottom)))
+    def __match_num(self, mx):
+        for model in self._training_set:
+            if model.match(mx):
+                return model.label
 
-        return number_regions
-
-    def __print_regions(self, region, region_coords):
-        for top_left, bottom_right in region_coords:
-            self.__print_region(region, (top_left, bottom_right))
-            print ''
+        return None
 
     def __print_region(self, region, coord=None):
         image = region.convert('1')
@@ -94,15 +97,54 @@ class DataImageOCRer(object):
             coord = ((0, 0), (image.size[0]-1, image.size[1]-1))
 
         top_left, bottom_right = coord
-
+        out_matrix = []
         for i in range(top_left[1], bottom_right[1] + 1):
+            line = []
             for j in range(top_left[0], bottom_right[0] + 1):
-                if pixdata[j, i] == 255:
-                    sys.stdout.write(' ')
+                if pixdata[j, i] == 0:
+                    line.append('1')
                 else:
-                    sys.stdout.write('1')
+                    line.append(' ')
 
-            print ''
+            out_matrix.append(line)
+
+        self.__log_out_matrix(out_matrix, 'Origin matrix:')
+
+    def __log_out_matrix(self, out_matrix, prefix_info=''):
+        join_lines = []
+        for line in out_matrix:
+            join_lines.append(''.join(line))
+
+        log.info('\n'.join([prefix_info] + join_lines))
+
+    def __parse_region(self, region, coord):
+        image = region.convert('1')
+        pixdata = image.load()
+
+        top_left, bottom_right = coord
+
+        left = -1
+
+        ret_matrix = None
+
+        for col in range(top_left[0], bottom_right[0] + 1):
+            data = [1 if pixdata[col, row] == 0 else 0 for row in range(top_left[1], bottom_right[1] + 1)]
+
+            if left == -1:
+                if any(data):
+                    if ret_matrix:
+                        ret_matrix = np.hstack((ret_matrix, np.matrix(data).T))
+                    else:
+                        ret_matrix = np.matrix(data).T
+
+                    left = col
+            else:
+                if all([x == 0 for x in data]):
+                    break
+                else:
+                    ret_matrix = np.hstack((ret_matrix, np.matrix(data).T))
+
+        return ret_matrix
 
 
 if __name__ == '__main__':

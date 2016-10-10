@@ -19,5 +19,8 @@ class _DBManager(object):
     def insert_record(self, rec):
         return self.table.insert_one(rec).inserted_id
 
+    def delete_record(self, filter):
+        return self.table.delete_one(filter).deleted_count
+
 
 DBManager = _DBManager()
