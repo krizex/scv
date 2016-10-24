@@ -9,7 +9,7 @@ from scv.recognize.ocr import DataImageOCRer
 class TestDataImageOCRer(unittest.TestCase):
     def test_recognize(self):
         images = []
-        image_dir = '/home/dqian/dev/scv/src/scv/running/data/images/'
+        image_dir = os.path.join(os.path.dirname(__file__), '../../../scv/running/data/images')
         for f in os.listdir(image_dir):
             if not f.endswith('.jpg'):
                 continue
@@ -26,11 +26,11 @@ class TestDataImageOCRer(unittest.TestCase):
         ocrer.get_subscribe_num()
         ocrer.get_deal_num()
 
-    @unittest.skip('Do NOT call this method This function is only for data fixing')
+    # @unittest.skip('Do NOT call this method This function is only for data fixing')
     def test_fix_data(self):
         # TODO: This function is only for data fixing
         images = []
-        image_dir = '/home/dqian/dev/scv/src/scv/running/data/images/'
+        image_dir = os.path.join(os.path.dirname(__file__), '../../../scv/running/data/images')
         for f in os.listdir(image_dir):
             if not f.endswith('.jpg'):
                 continue
