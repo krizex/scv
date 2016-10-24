@@ -44,6 +44,7 @@ class Runner(object):
         deal_num = ocr.get_deal_num()
         log.info("date=%s, subscribe=%s, deal=%s" % (data_time.strftime("%Y%m%d"), subscribe_num, deal_num))
         try:
+            DBManager.delete_record({'date': data_time.strftime("%Y%m%d")})
             DBManager.insert_record({
                 'date': data_time.strftime("%Y%m%d"),
                 'subscribe': subscribe_num,
