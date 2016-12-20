@@ -9,7 +9,7 @@ from scv import config
 from scv.db.db import DBManager
 from scv.exceptions.spider import ImageUnableGetException
 from scv.log.logger import log
-from scv.recognize.ocr import DataImageOCRer
+from scv.recognize.ocr import DataImageOCRer, RecognizeException
 from scv.spider.collect.image import ImageCollector
 
 __author__ = 'David Qian'
@@ -32,6 +32,8 @@ class Runner(object):
                 self.execute()
             except ImageUnableGetException:
                 log.error('Get image failed.')
+            except RecognizeException:
+                log.error('Recognize image failed.')
 
             self.suspend(time.time() - start_time)
 

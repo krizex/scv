@@ -20,12 +20,17 @@ VERTICAL = 'vertical'
 HORIZON = 'horizon'
 
 
+class RecognizeException(Exception):
+    pass
+
+
 class DataImageOCRer(object):
     def __init__(self, img_path):
         self._img_path = img_path
         self._image = Image.open(self._img_path)
         self._training_set = []
         self.__load_training_set()
+        self.__print_training_set()
 
     def __load_training_set(self):
         dirname = os.path.dirname(__file__)
@@ -33,6 +38,11 @@ class DataImageOCRer(object):
         for idx in range(10):
             mx = np.load(os.path.join(dirname, 'training_set', '%d.npy' % idx))
             self._training_set.append(NumberModle(mx, str(idx)))
+
+    def __print_training_set(self):
+        for idx, s in enumerate(self._training_set):
+            matrix = s.get_array()
+            self.__log_out_matrix(matrix, str(idx) + ':')
 
     @property
     def imagefile(self):
@@ -77,7 +87,7 @@ class DataImageOCRer(object):
                     mx = None
             else:
                 if mx is not None:
-                    raise RuntimeError('recognize failed')
+                    raise RecognizeException('recognize failed')
 
                 mx = None
 

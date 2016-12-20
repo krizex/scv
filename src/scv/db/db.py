@@ -22,5 +22,8 @@ class _DBManager(object):
     def delete_record(self, filter):
         return self.table.delete_one(filter).deleted_count
 
+    def fetch_record(self):
+        return self.table.find()
+
 
 DBManager = _DBManager()
