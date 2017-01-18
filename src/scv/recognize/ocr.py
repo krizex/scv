@@ -24,13 +24,18 @@ class RecognizeException(Exception):
     pass
 
 
+class FindMode(object):
+    FIND_BEGIN = 0
+    FIND_END = 1
+
+
 class DataImageOCRer(object):
     def __init__(self, img_path):
         self._img_path = img_path
         self._image = Image.open(self._img_path)
         self._training_set = []
         self.__load_training_set()
-        self.__print_training_set()
+        # self.__print_training_set()
 
     def __load_training_set(self):
         dirname = os.path.dirname(__file__)
@@ -59,6 +64,25 @@ class DataImageOCRer(object):
         deal_box = (129, 62, 170, 78)
         return self.recognize_region(deal_box)
 
+    def get_subscribe_split(self):
+        subscribe_box = (71, 64, 116, 78)
+        return self.get_split_result(subscribe_box)
+
+    def get_deal_split(self):
+        deal_box = (129, 62, 170, 78)
+        return self.get_split_result(deal_box)
+
+    def get_split_result(self, region_box):
+        region = self.clip_image(region_box)
+        self.__print_region(region)
+        split_result = self.__split_region(region)
+        ret = []
+        for b, e in split_result:
+            ret.append(e - b)
+
+        log.debug(ret)
+        return ret
+
     def recognize_region(self, region_box):
         region = self.clip_image(region_box)
         self.__print_region(region)
@@ -67,31 +91,30 @@ class DataImageOCRer(object):
         return result
 
     def __recognize_region(self, crop_region):
-        image = crop_region.convert('1')
+        pass
+
+    def __split_region(self, region):
+        image = region.convert('1')
         pixdata = image.load()
 
-        mx = None
-        nums = []
+        mode = FindMode.FIND_BEGIN
+        begin = []
+        end = []
+        for i in range(image.size[0]):
+            col = [pixdata[i, j] for j in range(image.size[1])]
+            has_data_pix = any([x == 0 for x in col])
+            if mode == FindMode.FIND_BEGIN and has_data_pix:
+                begin.append(i)
+                mode = FindMode.FIND_END
+            elif mode == FindMode.FIND_END and not has_data_pix:
+                end.append(i)
+                mode = FindMode.FIND_BEGIN
 
-        for col in range(image.size[0]):
-            data = [1 if pixdata[col, row] == 0 else 0 for row in range(image.size[1])]
-            if any(data):
-                if mx is not None:
-                    mx = np.hstack((mx, np.matrix(data).T))
-                else:
-                    mx = np.matrix(data).T
+        if len(begin) != len(end):
+            end.append(image.size[0])
 
-                num = self.__match_num(mx)
-                if num is not None:
-                    nums.append(num)
-                    mx = None
-            else:
-                if mx is not None:
-                    raise RecognizeException('recognize failed')
+        return zip(begin, end)
 
-                mx = None
-
-        return int(''.join(nums))
 
     def __match_num(self, mx):
         for model in self._training_set:

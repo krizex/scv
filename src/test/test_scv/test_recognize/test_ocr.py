@@ -61,6 +61,35 @@ class TestDataImageOCRer(unittest.TestCase):
         except DuplicateKeyError:
             pass
 
+    def test_split(self):
+        images = []
+        image_dir = os.path.join(os.path.dirname(__file__), '../../../scv/running/data/images')
+        for f in os.listdir(image_dir):
+            if not f.endswith('.jpg'):
+                continue
 
+            real_f = os.path.join(image_dir, f)
+            data_time = f.split('.jpg')[0]
+            data_time = datetime.datetime.strptime(data_time, '%Y%m%d')
+            data_time -= datetime.timedelta(days=1)
+
+            images.append((real_f, data_time))
+
+        ret = []
+        for image in images:
+            a, b = self.split(image[0])
+            ret.append(a)
+            ret.append(b)
+
+        for x in ret:
+            print x
+
+    def split(self, image):
+        ocr = DataImageOCRer(image)
+        subscribe_split = ocr.get_subscribe_split()
+
+        deal_split = ocr.get_deal_split()
+
+        return subscribe_split, deal_split
 if __name__ == '__main__':
     unittest.main()
