@@ -77,10 +77,14 @@ class DataImageOCRer(object):
         self.__print_region(region)
         split_result = self.__split_region(region)
         ret = []
-        for b, e in split_result:
-            ret.append(e - b)
+        left, upper, right, lower = region_box
 
-        log.debug(ret)
+        for b, e in split_result:
+            box = (left + b, upper, left + e, lower)
+            ret.append(box)
+            digit_regin = self.clip_image(box)
+            self.__print_region(digit_regin)
+
         return ret
 
     def recognize_region(self, region_box):
@@ -114,7 +118,6 @@ class DataImageOCRer(object):
             end.append(image.size[0])
 
         return zip(begin, end)
-
 
     def __match_num(self, mx):
         for model in self._training_set:
