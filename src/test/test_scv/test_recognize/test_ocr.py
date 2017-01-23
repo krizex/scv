@@ -1,8 +1,6 @@
 import os
 import unittest
-
 import datetime
-
 from scv.recognize.ocr import DataImageOCRer
 
 
@@ -23,8 +21,8 @@ class TestDataImageOCRer(unittest.TestCase):
 
     def binarization_0(self, file_path):
         ocrer = DataImageOCRer(file_path)
-        ocrer.get_subscribe_num()
-        ocrer.get_deal_num()
+        ocrer.recognize_subscribe_num()
+        ocrer.recognize_deal_num()
 
     # @unittest.skip('Do NOT call this method This function is only for data fixing')
     def test_fix_data(self):
@@ -47,8 +45,8 @@ class TestDataImageOCRer(unittest.TestCase):
 
     def fix_data(self, img_path, data_time):
         ocr = DataImageOCRer(img_path)
-        subscribe_num = ocr.get_subscribe_num()
-        deal_num = ocr.get_deal_num()
+        subscribe_num = ocr.recognize_subscribe_num()
+        deal_num = ocr.recognize_deal_num()
         from pymongo.errors import DuplicateKeyError
         try:
             from scv.db.db import DBManager
@@ -77,19 +75,18 @@ class TestDataImageOCRer(unittest.TestCase):
 
         ret = []
         for image in images:
+            print os.path.basename(image[0])
             a, b = self.split(image[0])
             ret.append(a)
             ret.append(b)
 
-        for x in ret:
-            print x
-
     def split(self, image):
         ocr = DataImageOCRer(image)
-        subscribe_split = ocr.get_subscribe_split()
+        subscribe_split = ocr.get_subscribe_number_feature()
 
-        deal_split = ocr.get_deal_split()
+        deal_split = ocr.get_deal_number_feature()
 
         return subscribe_split, deal_split
+
 if __name__ == '__main__':
     unittest.main()

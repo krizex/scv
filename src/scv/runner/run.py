@@ -42,8 +42,8 @@ class Runner(object):
         img_path, data_time = self._download_image()
         log.info('start to recognize image')
         ocr = DataImageOCRer(img_path)
-        subscribe_num = ocr.get_subscribe_num()
-        deal_num = ocr.get_deal_num()
+        subscribe_num = ocr.recognize_subscribe_num()
+        deal_num = ocr.recognize_deal_num()
         log.info("date=%s, subscribe=%s, deal=%s" % (data_time.strftime("%Y%m%d"), subscribe_num, deal_num))
         try:
             DBManager.delete_record({'date': data_time.strftime("%Y%m%d")})
