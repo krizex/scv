@@ -1,12 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
-
-import numpy as np
 from PIL import Image
-
 from scv.log.logger import log
-from scv.recognize.model import NumberModle
+from scv.recognize.tf.softmax import Recognizer
 
 __author__ = 'David Qian'
 
@@ -33,21 +29,6 @@ class DataImageOCRer(object):
     def __init__(self, img_path):
         self._img_path = img_path
         self._image = Image.open(self._img_path)
-        # self._training_set = []
-        # self.__load_training_set()
-        # self.__print_training_set()
-
-    # def __load_training_set(self):
-    #     dirname = os.path.dirname(__file__)
-    #
-    #     for idx in range(10):
-    #         mx = np.load(os.path.join(dirname, 'training_set', '%d.npy' % idx))
-    #         self._training_set.append(NumberModle(mx, str(idx)))
-
-    # def __print_training_set(self):
-    #     for idx, s in enumerate(self._training_set):
-    #         matrix = s.get_array()
-    #         self.__log_out_matrix(matrix, str(idx) + ':')
 
     @property
     def imagefile(self):
@@ -57,12 +38,12 @@ class DataImageOCRer(object):
         return self._image.crop(region_box)
 
     def recognize_subscribe_num(self):
-        subscribe_box = (71, 64, 116, 78)
-        return self.recognize_region(subscribe_box)
+        features = self.get_subscribe_number_feature()
+        return self.__recognize(features)
 
     def recognize_deal_num(self):
-        deal_box = (129, 62, 170, 78)
-        return self.recognize_region(deal_box)
+        features = self.get_deal_number_feature()
+        return self.__recognize(features)
 
     def get_subscribe_number_feature(self):
         subscribe_box = (71, 64, 116, 78)
@@ -88,15 +69,10 @@ class DataImageOCRer(object):
 
         return ret
 
-    def recognize_region(self, region_box):
-        region = self.clip_image(region_box)
-        self.__print_region(region)
-        result = self.__recognize_region(region)
-        log.info('Recognize result: %d' % result)
-        return result
-
-    def __recognize_region(self, crop_region):
-        pass
+    def __recognize(self, features):
+        labels = Recognizer().recognize(features)
+        labels = [str(x) for x in labels]
+        return int(''.join(labels))
 
     def __split_region(self, region):
         image = region.convert('1')
@@ -152,7 +128,7 @@ class DataImageOCRer(object):
         feature = []
         for j in range(image.size[1]):
             for i in range(image.size[0]):
-                feature.append(pixdata[i, j])
+                feature.append(float(pixdata[i, j]))
 
         return feature
 
@@ -182,35 +158,6 @@ class DataImageOCRer(object):
             join_lines.append(''.join(line))
 
         log.info('\n'.join([prefix_info] + join_lines))
-
-    # def __parse_region(self, region, coord):
-    #     image = region.convert('1')
-    #     pixdata = image.load()
-    #
-    #     top_left, bottom_right = coord
-    #
-    #     left = -1
-    #
-    #     ret_matrix = None
-    #
-    #     for col in range(top_left[0], bottom_right[0] + 1):
-    #         data = [1 if pixdata[col, row] == 0 else 0 for row in range(top_left[1], bottom_right[1] + 1)]
-    #
-    #         if left == -1:
-    #             if any(data):
-    #                 if ret_matrix:
-    #                     ret_matrix = np.hstack((ret_matrix, np.matrix(data).T))
-    #                 else:
-    #                     ret_matrix = np.matrix(data).T
-    #
-    #                 left = col
-    #         else:
-    #             if all([x == 0 for x in data]):
-    #                 break
-    #             else:
-    #                 ret_matrix = np.hstack((ret_matrix, np.matrix(data).T))
-    #
-    #     return ret_matrix
 
 
 if __name__ == '__main__':

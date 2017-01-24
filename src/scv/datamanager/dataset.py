@@ -7,7 +7,6 @@ from collections import namedtuple
 import pymongo
 
 from scv.db.db import DBManager
-from scv.recognize.ocr import DataImageOCRer
 
 __author__ = 'David Qian'
 
@@ -34,8 +33,8 @@ class SalesFeatureLabel(object):
 
     def __init_data(self, features, labels):
         for feature, label in zip(features, labels):
-            label_list = [0] * 10
-            label_list[label] = 1
+            label_list = [0.0] * 10
+            label_list[label] = 1.0
             self.data.append(self.FeatureLabel(feature, label_list))
 
 
@@ -69,6 +68,7 @@ class DataSet(object):
 
     def __get_feature_label(self, dataset):
         sales_feature_label_list = []
+        from scv.recognize.ocr import DataImageOCRer
         for rec in dataset:
             ocrer = DataImageOCRer(self.real_pic_path(rec.pic_name))
             features = ocrer.get_subscribe_number_feature() + ocrer.get_deal_number_feature()
