@@ -70,7 +70,7 @@ class DataSet(object):
         sales_feature_label_list = []
         from scv.recognize.ocr import DataImageOCRer
         for rec in dataset:
-            ocrer = DataImageOCRer(self.real_pic_path(rec.pic_name))
+            ocrer = DataImageOCRer(self.real_pic_path(rec.pic_name), None)
             features = ocrer.get_subscribe_number_feature() + ocrer.get_deal_number_feature()
             labels = [int(x) for x in (list(str(rec.subscribe_num)) + list(str(rec.deal_num)))]
             sales_feature_label_list.append(SalesFeatureLabel(features, labels))

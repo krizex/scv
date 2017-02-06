@@ -4,7 +4,6 @@ import os
 import tensorflow as tf
 
 from scv.log.logger import log
-from scv.recognize.tf.model import MODEL_DIR
 
 __author__ = 'David Qian'
 
@@ -70,25 +69,10 @@ class SoftmaxTrainer(object):
         return self.session.run(tf.argmax(self.y, 1), {self.x: feature})
 
 
-def __init_recognizer(recognizer):
+def init_recognizer(recognizer):
+    log.info('Init recognizer...')
     from scv.datamanager.dataset import DataSet
     dataset = DataSet()
     training_set = dataset.get_training_set()
     verify_set = dataset.get_verify_set()
     recognizer.train(training_set, verify_set)
-
-
-__Recognizer = SoftmaxTrainer(160, 10, 0.00003, 100)
-__inited = False
-
-
-# TODO: refine these code, this is a workaround for recursive import
-def Recognizer():
-    global __inited
-    if __inited:
-        return __Recognizer
-
-    __init_recognizer(__Recognizer)
-    __inited = True
-
-    return __Recognizer

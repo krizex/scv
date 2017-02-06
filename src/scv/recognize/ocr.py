@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from PIL import Image
 from scv.log.logger import log
-from scv.recognize.tf.softmax import Recognizer
+
 
 __author__ = 'David Qian'
 
@@ -26,9 +26,10 @@ class FindMode(object):
 
 
 class DataImageOCRer(object):
-    def __init__(self, img_path):
+    def __init__(self, img_path, recognizer):
         self._img_path = img_path
         self._image = Image.open(self._img_path)
+        self._recognizer = recognizer
 
     @property
     def imagefile(self):
@@ -70,7 +71,7 @@ class DataImageOCRer(object):
         return ret
 
     def __recognize(self, features):
-        labels = Recognizer().recognize(features)
+        labels = self._recognizer.recognize(features)
         labels = [str(x) for x in labels]
         return int(''.join(labels))
 
@@ -161,7 +162,9 @@ class DataImageOCRer(object):
 
 
 if __name__ == '__main__':
+    from scv.runner.run import Runner
+    runner = Runner()
     img_path = '../running/data/images/20160908.jpg'
-    ocr = DataImageOCRer(img_path)
+    ocr = DataImageOCRer(img_path, runner.recognizer)
     print ocr.recognize_subscribe_num()
     print ocr.recognize_deal_num()
