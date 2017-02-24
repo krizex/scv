@@ -26,7 +26,7 @@ class TestSoftmax(unittest.TestCase):
         feature_count = len(training_set[0].feature)
         label_count = len(training_set[0].label)
 
-        trainer = SoftmaxTrainer(feature_count, label_count, 0.00003, 100)
+        trainer = SoftmaxTrainer(feature_count, label_count, 0.00005, 500)
         trainer.train(training_set, verify_set)
 
         for feature, label in verify_set:

@@ -24,7 +24,7 @@ Created on 09/07/2016
 class Runner(object):
     def __init__(self):
         self._collector = ImageCollector(config.file_store['path'])
-        self._recognizer = SoftmaxTrainer(160, 10, 0.00003, 100)
+        self._recognizer = SoftmaxTrainer(160, 10, 0.00005, 500)
         init_recognizer(self._recognizer)
 
     @property

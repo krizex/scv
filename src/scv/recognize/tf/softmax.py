@@ -46,8 +46,8 @@ class SoftmaxTrainer(object):
                                                     self.x:  [p[0] for p in verify_pairs],
                                                     self.y_: [p[1] for p in verify_pairs],
                                                 })
-
-            log.debug('Recognize accuracy is %f' % recognize_accuracy)
+            if i % 50 == 0:
+                log.debug('[%d] Recognize accuracy is %f' % (i, recognize_accuracy))
 
     def save(self, filename):
         saver = tf.train.Saver()
