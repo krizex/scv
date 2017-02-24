@@ -29,9 +29,12 @@ class ImageCollector(object):
         return self.__store_folder
 
     def get_image(self):
-        r = requests.get(self.img_url, stream=True)
-        if r.status_code != 200:
-            log.error("get image from '%s' failed" % self.img_url)
+        try:
+            r = requests.get(self.img_url, stream=True)
+            if r.status_code != 200:
+                log.error("get image from '%s' failed" % self.img_url)
+                raise ImageUnableGetException('Download image failed')
+        except:
             raise ImageUnableGetException('Download image failed')
 
         f_path = self.__get_store_img_path()
