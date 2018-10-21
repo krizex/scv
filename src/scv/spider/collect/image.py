@@ -30,7 +30,7 @@ class ImageCollector(object):
 
     def get_image(self):
         try:
-            r = requests.get(self.img_url, stream=True)
+            r = requests.get(self.img_url, stream=True, headers={'User-Agent': 'Mozilla/5.0'})
             if r.status_code != 200:
                 log.error("get image from '%s' failed" % self.img_url)
                 raise ImageUnableGetException('Download image failed')
