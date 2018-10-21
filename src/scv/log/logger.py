@@ -28,7 +28,7 @@ class Logger(object):
                                       "%Y-%m-%d %H:%M:%S")
 
         handler = RotatingFileHandler(
-            os.path.join(log_file_dir, config.logger['file']))
+            os.path.join(log_file_dir, config.logger['file']), maxBytes=config.logger['maxBytes'], backupCount=config.logger['backupCount'])
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
 
