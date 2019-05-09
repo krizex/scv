@@ -4,7 +4,9 @@ import argparse
 import sys
 import os
 from scv.app import app
+from scv.app.models.housesales import Sale
 import traceback
+import datetime
 
 def confirm(cfm_str):
     """
@@ -29,12 +31,30 @@ def init_db(args):
         db.create_all()
 
 
+def __create_records(db):
+    day0 = datetime.date.today() - datetime.timedelta(days=10)
+    day1 = datetime.date.today()
+    db.session.add(Sale(date=day0, subscribe=100, deal=200))
+    db.session.add(Sale(date=day1, subscribe=200, deal=300))
+    db.session.commit()
+
+
+def insert_records(args):
+    from scv.app import db
+    with app.app_context():
+        __create_records(db)
+
+
+
 def build_parser():
     parser = argparse.ArgumentParser(description='Database ops')
     subparsers = parser.add_subparsers()
 
     initdb_parser = subparsers.add_parser('init', help='init database')
     initdb_parser.set_defaults(cmd=init_db)
+
+    initdb_parser = subparsers.add_parser('create', help='create records')
+    initdb_parser.set_defaults(cmd=insert_records)
 
     return parser
 

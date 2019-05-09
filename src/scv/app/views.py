@@ -16,13 +16,13 @@ Created on 12/19/2016
 def display_sales_data():
     records = get_sales_data()
 
-    records_date = [str(rec['date']) for rec in records]
+    records_date = [rec.date.strftime('%Y-%m-%d') for rec in records]
 
     records_date = {
         'categories': records_date
     }
-    subscribe = [rec['subscribe'] for rec in records]
-    deal_num = [rec['deal_num'] for rec in records]
+    subscribe = [rec.subscribe for rec in records]
+    deal_num = [rec.deal for rec in records]
     sales_data = [
         {
             'name': 'subscribe',

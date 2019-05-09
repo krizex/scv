@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from .models.housesales import Sales
+import datetime
+from .models.housesales import Sale
 __author__ = 'David Qian'
 
 """
@@ -11,8 +11,23 @@ Created on 12/19/2016
 
 
 def get_sales_data():
-    records = Sales.query.order_by(Sales.date)
-    return [rec for rec in records]
+    records = Sale.query.order_by(Sale.date)
+    #  fill the gap of them
+    if not records:
+        return []
+
+    rets = []
+    expt_date = records[0].date + datetime.timedelta(days=0)
+    for sale in records:
+        while sale.date != expt_date:
+            fill_sale = Sale(date=expt_date, subscribe=0, deal=0)
+            rets.append(fill_sale)
+            expt_date = expt_date + datetime.timedelta(days=1)
+
+        rets.append(sale)
+        expt_date = expt_date + datetime.timedelta(days=1)
+
+    return rets
 
 
 if __name__ == '__main__':
