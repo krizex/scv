@@ -8,6 +8,7 @@ services:
     volumes:
       - /var/scv/log:/var/log:rw
       - /etc/localtime:/etc/localtime:ro
+      - /var/scv/running:/app/scv/running:rw
     env_file: database.conf
     networks:
       - backend

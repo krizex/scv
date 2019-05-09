@@ -19,6 +19,7 @@ debug:
 	-p $(HOST_DEBUG_PORT):$(CONTAINER_PORT) \
 	-v $(CUR_DIR)/src:/app \
 	-v /etc/localtime:/etc/localtime:ro \
+	-v /var/scv/running:/app/scv/running:rw \
 	$(IMAGE_LABEL):latest /bin/bash
 
 .PHONY: run-pg stop-pg

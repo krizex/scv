@@ -71,6 +71,9 @@ class DataImageOCRer(object):
         return ret
 
     def __recognize(self, features):
+        if self._recognizer is None:
+            return None
+
         labels = self._recognizer.recognize(features)
         labels = [str(x) for x in labels]
         return int(''.join(labels))
@@ -98,6 +101,7 @@ class DataImageOCRer(object):
         return self.__fix_split_region(list(zip(begin, end)), pixdata, image.size[1])
 
     def __fix_split_region(self, region_pair, pixdata, pic_height):
+        """split the conglutination region"""
         THRESHOLD = 5
         ret = []
         for b, e in region_pair:
@@ -163,8 +167,8 @@ class DataImageOCRer(object):
 
 if __name__ == '__main__':
     from scv.runner.run import Runner
-    runner = Runner()
-    img_path = '../running/data/images/20160908.jpg'
-    ocr = DataImageOCRer(img_path, runner.recognizer)
+    img_path = './scv/running/data/images/20160908.jpg'
+    # ocr = DataImageOCRer(img_path, Runner().recognizer)
+    ocr = DataImageOCRer(img_path, None)
     print(ocr.recognize_subscribe_num())
     print(ocr.recognize_deal_num())

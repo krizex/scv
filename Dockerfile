@@ -20,6 +20,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 RUN rm -f requirements.txt
 
+RUN apt install -y node-less
 
 COPY src/ /app/
 WORKDIR /app
