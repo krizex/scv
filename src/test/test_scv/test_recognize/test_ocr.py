@@ -20,7 +20,7 @@ class TestDataImageOCRer(unittest.TestCase):
             images.append(real_f)
 
         for f in images:
-            print f
+            print(f)
             self.binarization_0(f)
             # break
 
@@ -80,7 +80,7 @@ class TestDataImageOCRer(unittest.TestCase):
 
         ret = []
         for image in images:
-            print os.path.basename(image[0])
+            print(os.path.basename(image[0]))
             a, b = self.split(image[0])
             ret.append(a)
             ret.append(b)

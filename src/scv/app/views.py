@@ -34,7 +34,7 @@ def display_sales_data():
         },
     ]
 
-    print records_date
-    print sales_data
+    print(records_date)
+    print(sales_data)
     return render_template('sales_data.html', xAxis=records_date, series=sales_data)
 

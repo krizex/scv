@@ -94,11 +94,11 @@ class DataSet(object):
             if i % 10 == 9:
                 feature_matrix.append('\n')
 
-        print 'Digit:'
-        print ''.join(feature_matrix)
+        print('Digit:')
+        print(''.join(feature_matrix))
 
         label = label.index(1)
-        print 'Label: %d' % label
+        print('Label: %d' % label)
 
 
 

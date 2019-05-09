@@ -18,5 +18,5 @@ class TestDataSet(unittest.TestCase):
         dataset = DataSet()
         training_set = dataset.get_training_set()
         for rec in training_set:
-            print rec.feature
-            print rec.label
+            print(rec.feature)
+            print(rec.label)

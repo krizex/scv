@@ -52,15 +52,15 @@ class SoftmaxTrainer(object):
     def save(self, filename):
         saver = tf.train.Saver()
         saver.save(self.session, filename)
-        print self.b.eval()
-        print self.W.eval()
+        print(self.b.eval())
+        print(self.W.eval())
 
     def restore(self, filename):
         ckpt = tf.train.get_checkpoint_state(os.path.dirname(filename))
         saver = tf.train.Saver()
         saver.restore(self.session, ckpt.model_checkpoint_path)
-        print self.b.eval()
-        print self.W.eval()
+        print(self.b.eval())
+        print(self.W.eval())
 
     def recognize(self, feature):
         if not isinstance(feature[0], (list, tuple)):

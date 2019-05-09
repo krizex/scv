@@ -95,7 +95,7 @@ class DataImageOCRer(object):
         if len(begin) != len(end):
             end.append(image.size[0])
 
-        return self.__fix_split_region(zip(begin, end), pixdata, image.size[1])
+        return self.__fix_split_region(list(zip(begin, end)), pixdata, image.size[1])
 
     def __fix_split_region(self, region_pair, pixdata, pic_height):
         THRESHOLD = 5
@@ -166,5 +166,5 @@ if __name__ == '__main__':
     runner = Runner()
     img_path = '../running/data/images/20160908.jpg'
     ocr = DataImageOCRer(img_path, runner.recognizer)
-    print ocr.recognize_subscribe_num()
-    print ocr.recognize_deal_num()
+    print(ocr.recognize_subscribe_num())
+    print(ocr.recognize_deal_num())

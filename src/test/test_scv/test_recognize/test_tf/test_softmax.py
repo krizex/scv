@@ -21,7 +21,7 @@ class TestSoftmax(unittest.TestCase):
         dataset = DataSet()
         training_set = dataset.get_training_set()
         verify_set = dataset.get_verify_set()
-        print 'training set size is %d' % len(training_set)
+        print('training set size is %d' % len(training_set))
 
         feature_count = len(training_set[0].feature)
         label_count = len(training_set[0].label)
@@ -32,7 +32,7 @@ class TestSoftmax(unittest.TestCase):
         for feature, label in verify_set:
             DataSet.print_feature_label(feature, label)
             predict_label = trainer.recognize(feature)[0]
-            print 'Predict label %d' % predict_label
+            print('Predict label %d' % predict_label)
             self.assertEqual(label.index(1), predict_label)
 
         if not os.path.exists(os.path.join(MODEL_DIR, 'model.ckpt')):
