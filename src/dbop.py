@@ -3,6 +3,7 @@
 import argparse
 import sys
 import os
+import json
 from scv.app import app
 from scv.app.models.housesales import Sale
 import traceback
@@ -39,10 +40,25 @@ def __create_records(db):
     db.session.commit()
 
 
+def _restore_records(db):
+    f = './dumps.json'
+    with open(f) as f:
+        js = json.load(f)
+
+    for rec in js:
+        s = rec['date']
+        date =   '-'.join([s[:4], s[4:6], s[6:]])
+        sale = Sale(date=date, subscribe=rec['subscribe'], deal=rec['deal_num'])
+        db.session.add(sale)
+
+    db.session.commit()
+
+
 def insert_records(args):
     from scv.app import db
     with app.app_context():
-        __create_records(db)
+        # __create_records(db)
+        _restore_records(db)
 
 
 
@@ -53,7 +69,7 @@ def build_parser():
     initdb_parser = subparsers.add_parser('init', help='init database')
     initdb_parser.set_defaults(cmd=init_db)
 
-    initdb_parser = subparsers.add_parser('create', help='create records')
+    initdb_parser = subparsers.add_parser('restore', help='restore records')
     initdb_parser.set_defaults(cmd=insert_records)
 
     return parser
