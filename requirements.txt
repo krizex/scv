@@ -15,3 +15,6 @@ requests==2.11.1
 six==1.10.0
 tensorflow
 Werkzeug
+Flask-SQLAlchemy==2.3.2
+psycopg2-binary==2.7.7
+

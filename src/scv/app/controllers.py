@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import pymongo
-
-from scv.db.db import DBManager
-
+from .models.housesales import Sales
 __author__ = 'David Qian'
 
 """
@@ -14,8 +11,7 @@ Created on 12/19/2016
 
 
 def get_sales_data():
-    records = DBManager.fetch_record()
-    records = records.sort([('date', pymongo.ASCENDING)])
+    records = Sales.query.order_by(Sales.date)
     return [rec for rec in records]
 
 

@@ -1,0 +1,27 @@
+version: '3'
+services:
+  scv:
+    image: krizex/scv:latest
+    container_name: scv
+    ports:
+      - "8001:8000"
+    volumes:
+      - /var/scv/log:/var/log:rw
+      - /etc/localtime:/etc/localtime:ro
+    env_file: database.conf
+    networks:
+      - backend
+
+  scv-pg:
+    image: postgres:10-alpine
+    container_name: scv-pg
+    volumes:
+      - /var/scv-pg/db:/var/lib/postgresql/data:rw
+    env_file: database.conf
+    networks:
+      - backend
+
+
+networks:
+  backend:
+    driver: bridge
