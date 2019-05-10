@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import time
 
-from pymongo.errors import DuplicateKeyError
 
 from scv import config
 from scv.db.db import DBManager
@@ -11,6 +10,9 @@ from scv.log.logger import log
 from scv.recognize.ocr import DataImageOCRer, RecognizeException
 from scv.recognize.tf.softmax import SoftmaxTrainer, init_recognizer
 from scv.spider.collect.image import ImageCollector
+from scv.app import app
+from scv.app import db
+from scv.app.models.housesales import Sale
 
 __author__ = 'David Qian'
 
@@ -52,15 +54,10 @@ class Runner(object):
         subscribe_num = ocr.recognize_subscribe_num()
         deal_num = ocr.recognize_deal_num()
         log.info("date=%s, subscribe=%s, deal=%s" % (data_time.strftime("%Y%m%d"), subscribe_num, deal_num))
-        try:
-            DBManager.delete_record({'date': data_time.strftime("%Y%m%d")})
-            DBManager.insert_record({
-                'date': data_time.strftime("%Y%m%d"),
-                'subscribe': subscribe_num,
-                'deal_num': deal_num
-            })
-        except DuplicateKeyError:
-            log.warn('duplicate record')
+        with app.app_context():
+            if not Sale.query.filter(Sale.date == data_time).all():
+                db.session.add(Sale(date=data_time, subscribe=subscribe_num, deal=deal_num))
+                db.session.commit()
 
     def _download_image(self):
         retrys = 5

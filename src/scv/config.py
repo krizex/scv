@@ -29,7 +29,7 @@ scanner = {
 }
 
 logger = {
-    'path': os.path.join(root_node['path'], 'logs'),
+    'path': '/var/log',
     'file': 'scv.log',
     'level': logging.DEBUG,
     'maxBytes': 1024 * 1024 * 20,

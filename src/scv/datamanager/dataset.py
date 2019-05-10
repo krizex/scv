@@ -3,10 +3,9 @@
 import datetime
 import os
 from collections import namedtuple
+from scv.app import app
+from scv.app.models.housesales import Sale
 
-import pymongo
-
-from scv.db.db import DBManager
 
 __author__ = 'David Qian'
 
@@ -50,12 +49,12 @@ class DataSet(object):
         return int(len(self.__data) * self.trainset_percent)
 
     def init_dataset(self):
-        records = DBManager.fetch_record()
-        records = records.sort([('date', pymongo.ASCENDING)])
+        with app.app_context():
+            records = Sale.query.order_by(Sale.date)
         for rec in records:
-            data_date = datetime.datetime.strptime(rec['date'], '%Y%m%d')
-            pic_name = '%s.jpg' % (data_date + datetime.timedelta(days=1)).strftime('%Y%m%d')
-            self.__data.append(SalesData(pic_name, rec['subscribe'], rec['deal_num']))
+            # The data in the picture shows the data of yesterday
+            pic_name = '%s.jpg' % (rec.date + datetime.timedelta(days=1)).strftime('%Y%m%d')
+            self.__data.append(SalesData(pic_name, rec.subscribe, rec.deal))
 
     def real_pic_path(self, pic_name):
         return os.path.join(self.__pic_dir, pic_name)
