@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import time
-
+import gc
 
 from scv import config
 from scv.db.db import DBManager
@@ -44,6 +44,7 @@ class Runner(object):
                 log.error('Recognize image failed.')
 
             log.info('Sleep...')
+            gc.collect()
             self.suspend(time.time() - start_time)
 
     def execute(self):
