@@ -31,6 +31,9 @@ class DataImageOCRer(object):
         self._image = Image.open(self._img_path)
         self._recognizer = recognizer
 
+    def __del__(self):
+        self._image.close()
+
     @property
     def imagefile(self):
         return self._image

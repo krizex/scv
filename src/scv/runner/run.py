@@ -2,17 +2,19 @@
 # -*- coding: utf-8 -*-
 import time
 import gc
-
+import sys
+import objgraph
 from scv import config
 from scv.db.db import DBManager
 from scv.exceptions.spider import ImageUnableGetException
 from scv.log.logger import log
 from scv.recognize.ocr import DataImageOCRer, RecognizeException
-from scv.recognize.tf.softmax import SoftmaxTrainer, init_recognizer
+from scv.recognize.tf.softmax import SoftmaxTrainer
 from scv.spider.collect.image import ImageCollector
 from scv.app import app
 from scv.app import db
 from scv.app.models.housesales import Sale
+from scv.datamanager.dataset import DataSet
 
 __author__ = 'David Qian'
 
@@ -24,14 +26,19 @@ Created on 09/07/2016
 
 
 class Runner(object):
-    def __init__(self):
+    def __init__(self, train):
         self._collector = ImageCollector(config.file_store['path'])
         self._recognizer = SoftmaxTrainer(160, 10, 0.00005, 500)
-        init_recognizer(self._recognizer)
+        self.init(train)
 
-    @property
-    def recognizer(self):
-        return self._recognizer
+    def init(self, train):
+        if train:
+            dataset = DataSet()
+            training_set = dataset.get_training_set()
+            verify_set = dataset.get_verify_set()
+            self._recognizer.train(training_set, verify_set)
+        else:
+            self._recognizer.restore()
 
     def run(self):
         while True:
@@ -78,4 +85,7 @@ class Runner(object):
 
 
 if __name__ == '__main__':
-    Runner().run()
+    if sys.argv[1] == 'train':
+        Runner(True)
+    else:
+        Runner(False).run()

@@ -1,7 +1,7 @@
 #!/bin/bash
 HOST=0.0.0.0
 PORT=8000
-WORKER_THREAD_CNT=2
+WORKER_THREAD_CNT=1
 
 PROG_NAME=$0
 
@@ -15,7 +15,8 @@ start ()
 {
     export FLASK_DEBUG=0
     echo "starting server"
-    python -m scv.runner.run & 
+    python -m scv.runner.run train
+    python -m scv.runner.run run &
     exec gunicorn -p app.pid -w $WORKER_THREAD_CNT -b $HOST:$PORT --timeout 60 scv.app:app
 }
 
