@@ -3,6 +3,7 @@
 import time
 import gc
 import sys
+import datetime
 import objgraph
 from scv import config
 from scv.db.db import DBManager
@@ -24,6 +25,9 @@ Created on 09/07/2016
 
 """
 
+def is_time_to_run(prev, now, expt):
+    return prev < expt <= now
+
 
 class Runner(object):
     def __init__(self, train):
@@ -40,19 +44,27 @@ class Runner(object):
         else:
             self._recognizer.restore()
 
-    def run(self):
-        while True:
-            start_time = time.time()
-            try:
-                self.execute()
-            except ImageUnableGetException:
-                log.error('Get image failed.')
-            except RecognizeException:
-                log.error('Recognize image failed.')
+    def do_once(self):
+        try:
+            self.execute()
+        except ImageUnableGetException:
+            log.error('Get image failed.')
+        except RecognizeException:
+            log.error('Recognize image failed.')
 
-            log.info('Sleep...')
+
+    def run(self):
+        prev_check = datetime.datetime.now()
+        while True:
             gc.collect()
-            self.suspend(time.time() - start_time)
+            expect = datetime.datetime(prev_check.year, prev_check.month, prev_check.day, hour=12, minute=30, second=0)
+            now_check = datetime.datetime.now()
+            if is_time_to_run(prev_check, now_check, expect):
+                self.do_once()
+            else:
+                time.sleep(60)
+
+            prev_check = now_check
 
     def execute(self):
         log.info('start to get image')
@@ -77,11 +89,6 @@ class Runner(object):
 
         log.error('unable to download image with retry %d times' % retrys)
         raise ImageUnableGetException('Get image failed with retry %d times' % retrys)
-
-    def suspend(self, elaps_time=0):
-        interval = config.scanner['interval']
-        log.debug('suspend %d seconds...' % interval)
-        time.sleep(interval - elaps_time)
 
 
 if __name__ == '__main__':
