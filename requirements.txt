@@ -11,7 +11,7 @@ pbr==1.10.0
 protobuf
 pymongo==3.3.0
 pytesseract==0.1.6
-requests==2.11.1
+requests==2.20.0
 six==1.10.0
 # tensorflow
 Werkzeug
