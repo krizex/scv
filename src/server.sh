@@ -15,8 +15,7 @@ start ()
 {
     export FLASK_DEBUG=0
     echo "starting server"
-    python -m scv.runner.run train
-    python -m scv.runner.run run &
+    python -m scv.runner.run &
     exec gunicorn -p app.pid -w $WORKER_THREAD_CNT -b $HOST:$PORT --timeout 60 scv.app:app
 }
 
