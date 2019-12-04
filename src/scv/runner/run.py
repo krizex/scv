@@ -5,6 +5,7 @@ import gc
 import sys
 import datetime
 import objgraph
+import requests
 from scv import config
 from scv.db.db import DBManager
 from scv.exceptions.spider import ImageUnableGetException
@@ -30,34 +31,14 @@ def is_time_to_run(prev, now, expt):
 
 
 class Runner(object):
-    def __init__(self, train):
-        self._collector = ImageCollector(config.file_store['path'])
-        self._recognizer = SoftmaxTrainer(160, 10, 0.00005, 500)
-        self.init(train)
-
-    def init(self, train):
-        if train:
-            dataset = DataSet()
-            training_set = dataset.get_training_set()
-            verify_set = dataset.get_verify_set()
-            self._recognizer.train(training_set, verify_set)
-        else:
-            self._recognizer.restore()
-
     def do_once(self):
-        try:
-            self.execute()
-        except ImageUnableGetException:
-            log.error('Get image failed.')
-        except RecognizeException:
-            log.error('Recognize image failed.')
-
+        self.execute()
 
     def run(self):
         prev_check = datetime.datetime.now()
         while True:
             gc.collect()
-            expect = datetime.datetime(prev_check.year, prev_check.month, prev_check.day, hour=12, minute=30, second=0)
+            expect = datetime.datetime(prev_check.year, prev_check.month, prev_check.day, hour=23, minute=0, second=0)
             now_check = datetime.datetime.now()
             if is_time_to_run(prev_check, now_check, expect):
                 self.do_once()
@@ -67,32 +48,17 @@ class Runner(object):
             prev_check = now_check
 
     def execute(self):
-        log.info('start to get image')
-        img_path, data_time = self._download_image()
-        log.info('start to recognize image')
-        ocr = DataImageOCRer(img_path, self._recognizer)
-        subscribe_num = ocr.recognize_subscribe_num()
-        deal_num = ocr.recognize_deal_num()
+        log.info('start to get data')
+        url = 'http://www.njhouse.com.cn/2019/spf/getdata'
+        r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
+        subscribe_num, deal_num = r.content.decode().split('-')
+        data_time = datetime.date.today()
         log.info("date=%s, subscribe=%s, deal=%s" % (data_time.strftime("%Y%m%d"), subscribe_num, deal_num))
         with app.app_context():
             if not Sale.query.filter(Sale.date == data_time).all():
                 db.session.add(Sale(date=data_time, subscribe=subscribe_num, deal=deal_num))
                 db.session.commit()
 
-    def _download_image(self):
-        retrys = 5
-        for i in range(1, retrys + 1):
-            try:
-                return self._collector.get_image()
-            except ImageUnableGetException:
-                log.warn('(%d/%d) unable to download image' % (i, retrys))
-
-        log.error('unable to download image with retry %d times' % retrys)
-        raise ImageUnableGetException('Get image failed with retry %d times' % retrys)
-
 
 if __name__ == '__main__':
-    if sys.argv[1] == 'train':
-        Runner(True)
-    else:
-        Runner(False).run()
+    Runner().run()
