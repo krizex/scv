@@ -8,7 +8,7 @@ DB_CONTAINER_NAME := scv-pg
 .PHONY: build
 build:
 	mkdir -p _build/datatmp
-	docker build -t $(IMAGE_LABEL) .
+	docker build --pull -t $(IMAGE_LABEL) .
 
 .PHONY: debug
 debug:
