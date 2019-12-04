@@ -10,9 +10,6 @@ from scv import config
 from scv.db.db import DBManager
 from scv.exceptions.spider import ImageUnableGetException
 from scv.log.logger import log
-from scv.recognize.ocr import DataImageOCRer, RecognizeException
-from scv.recognize.tf.softmax import SoftmaxTrainer
-from scv.spider.collect.image import ImageCollector
 from scv.app import app
 from scv.app import db
 from scv.app.models.housesales import Sale

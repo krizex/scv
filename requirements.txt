@@ -5,15 +5,15 @@ itsdangerous==0.24
 Jinja2==2.8
 MarkupSafe==0.23
 mock==2.0.0
-numpy==1.11.1
+# numpy==1.11.1
 pbr==1.10.0
-Pillow==3.3.1
+# Pillow==3.3.1
 protobuf
 pymongo==3.3.0
 pytesseract==0.1.6
 requests==2.11.1
 six==1.10.0
-tensorflow
+# tensorflow
 Werkzeug
 Flask-SQLAlchemy==2.3.2
 psycopg2-binary==2.7.7
