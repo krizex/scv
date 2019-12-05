@@ -29,7 +29,13 @@ def is_time_to_run(prev, now, expt):
 
 class Runner(object):
     def do_once(self):
-        self.execute()
+        for _ in range(10):
+            try:
+                self.execute()
+                return
+            except:
+                log.error('execute failed, try again')
+                time.sleep(10)
 
     def run(self):
         prev_check = datetime.datetime.now()
