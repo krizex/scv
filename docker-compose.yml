@@ -3,6 +3,7 @@ services:
   scv:
     image: krizex/scv:latest
     container_name: scv
+    restart: always
     ports:
       - "8080:8000"
     volumes:
@@ -16,6 +17,7 @@ services:
   scv-pg:
     image: postgres:10-alpine
     container_name: scv-pg
+    restart: always
     volumes:
       - /var/scv-pg/db:/var/lib/postgresql/data:rw
     env_file: database.conf
